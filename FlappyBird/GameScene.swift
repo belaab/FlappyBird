@@ -60,7 +60,6 @@ class GameScene: SKScene{
     }
     
     func checkPhysics() {
-        
         // Create an array of all the nodes with physicsBodies
         var physicsNodes = [SKNode]()
         
@@ -160,7 +159,7 @@ class GameScene: SKScene{
             
             let distance = CGFloat(self.frame.width*2) //self.frame.width + wallPair.frame.width
 
-            let movePipes = SKAction.moveBy(x: -distance - 200, y: 0, duration: TimeInterval(0.0065 * distance))
+            let movePipes = SKAction.moveBy(x: -distance - 200, y: 0, duration: TimeInterval(0.006 * distance))
             let removePipes = SKAction.removeFromParent() //remove the pipes after they moved off the screen
             
             moveAndRemove = SKAction.sequence([movePipes, removePipes])
