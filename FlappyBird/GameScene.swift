@@ -41,13 +41,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func createScene(){
-        
         self.physicsWorld.contactDelegate = self
-        
+
+        for i in 0..<2{
+            let background = SKSpriteNode(imageNamed: "Background")
+            background.anchorPoint = CGPoint(x: 0.5, y:0.5)
+            background.position = CGPoint(x: (CGFloat(i) * self.frame.width) , y: 0)
+            background.name = "background"
+            background.size = self.frame.size
+            //background.size = (self.view?.bounds.size)!
+            self.addChild(background)
+            
+        }
         scoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.maxY - 200)
         scoreLabel.text = "\(Score)"
         scoreLabel.zPosition = 6
-        
+        scoreLabel.fontName = "04b_19"
+        scoreLabel.fontSize = 90
         self.addChild(scoreLabel)
         Ground = SKSpriteNode(imageNamed: "Ground")
         Ground.setScale(0.7)
@@ -64,7 +74,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         
         Ghost = SKSpriteNode(imageNamed: "Ghost")
-        Ghost.size = CGSize(width: 90, height: 100)
+        Ghost.size = CGSize(width: 100, height: 100)
         Ghost.position = CGPoint(x: self.frame.midX - 100, y: self.frame.midY)
         
         Ghost.physicsBody = SKPhysicsBody(circleOfRadius: 50)
@@ -85,28 +95,64 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     
     func createButton(){
-        restartButton = SKSpriteNode(color: SKColor.cyan, size: CGSize(width: 200, height: 100))
+        restartButton = SKSpriteNode(imageNamed: "RestartBtn")
+        restartButton.size = CGSize(width: 300, height: 150)
         restartButton.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
         restartButton.zPosition = 6
+        restartButton.setScale(0)
         self.addChild(restartButton)
+        restartButton.run(SKAction.scale(to: 1.0, duration: 0.5))
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
         let firstBody = contact.bodyA
         let secondBody = contact.bodyB
+    
         
-        if firstBody.categoryBitMask == PhysicsCatagory.Score && secondBody.categoryBitMask == PhysicsCatagory.Ghost || firstBody.categoryBitMask == PhysicsCatagory.Ghost && secondBody.categoryBitMask == PhysicsCatagory.Score{
+        if firstBody.categoryBitMask == PhysicsCatagory.Score && secondBody.categoryBitMask == PhysicsCatagory.Ghost{
             Score += 1
             scoreLabel.text = "\(Score)"
+            firstBody.node?.removeFromParent()
+        }else
+        if firstBody.categoryBitMask == PhysicsCatagory.Ghost && secondBody.categoryBitMask == PhysicsCatagory.Score{
+            Score += 1
+            scoreLabel.text = "\(Score)"
+            secondBody.node?.removeFromParent()
         }
 
         if firstBody.categoryBitMask == PhysicsCatagory.Ghost && secondBody.categoryBitMask == PhysicsCatagory.Wall || firstBody.categoryBitMask == PhysicsCatagory.Wall && secondBody.categoryBitMask == PhysicsCatagory.Ghost{
-            died = true
-            createButton()
+            enumerateChildNodes(withName: "wallPair", using: ({
+                (node, error) in
+                
+                node.speed = 0
+                self.removeAllActions()
+            }))
+            
+            if died == false{
+                died = true
+                createButton()
+            }
+
         }
+        if firstBody.categoryBitMask == PhysicsCatagory.Ghost && secondBody.categoryBitMask == PhysicsCatagory.Ground || firstBody.categoryBitMask == PhysicsCatagory.Ground && secondBody.categoryBitMask == PhysicsCatagory.Ghost{
+            enumerateChildNodes(withName: "wallPair", using: ({
+                (node, error) in
+                
+                node.speed = 0
+                self.removeAllActions()
+            }))
+            
+            if died == false{
+                died = true
+                createButton()
+            }
+            
+        }
+
         
     }
     
+    //not obligatory - just for checking if physicsBody works right
     func checkPhysics() {
         // Create an array of all the nodes with physicsBodies
         var physicsNodes = [SKNode]()
@@ -154,10 +200,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
     
     func createWalls(){
-        let scoreNode = SKSpriteNode()
-        scoreNode.size =  CGSize(width: 1, height: 400)
+        let scoreNode = SKSpriteNode(imageNamed: "Coin")
+        scoreNode.size =  CGSize(width: 50, height: 50)
         scoreNode.position = CGPoint(x: self.frame.width, y: self.frame.midY)
-        
+        scoreNode.zPosition = 2
+
         scoreNode.physicsBody = SKPhysicsBody(rectangleOf: scoreNode.size)
         scoreNode.physicsBody?.affectedByGravity = false
         scoreNode.physicsBody?.isDynamic = false
@@ -165,9 +212,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         scoreNode.physicsBody?.collisionBitMask = 0
         scoreNode.physicsBody?.contactTestBitMask = PhysicsCatagory.Ghost
         scoreNode.color = SKColor.cyan
-        scoreNode.zPosition = 5
         
         wallPair = SKNode()
+        wallPair.name = "wallPair"
         let topWall = SKSpriteNode(imageNamed: "Wall")
         let btmWall = SKSpriteNode(imageNamed: "Wall")
 
@@ -257,15 +304,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 }
     
         override func update(_ currentTime: TimeInterval) {
-
+            
+            if gameStarted == true{
+                if died == false{
+                    enumerateChildNodes(withName: "background", using: ({
+                        (node, error) in
+                        
+                        var bg = node as! SKSpriteNode
+                        bg.position = CGPoint(x: bg.position.x - 3, y: bg.position.y)
+                        //point and float
+                        if bg.position.x <= -bg.size.width{
+                            bg.position = CGPoint(x: bg.position.x + bg.size.width*2, y: bg.position.y)
+                        }
+                    }))
+                }
+            }
     }
 }
-
-
-
-
-
-
 
 
 
