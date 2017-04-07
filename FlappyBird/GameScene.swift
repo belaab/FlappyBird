@@ -20,7 +20,7 @@ struct PhysicsCatagory{
 class GameScene: SKScene, SKPhysicsContactDelegate{
 
    
-   var wallPair = SKNode()
+   var wallPair = SKSpriteNode()
    var Ground = SKSpriteNode()
    var Ghost = SKSpriteNode()
    var Score = Int()
@@ -60,7 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         scoreLabel.fontSize = 90
         self.addChild(scoreLabel)
         Ground = SKSpriteNode(imageNamed: "Ground")
-        Ground.setScale(0.7)
+        Ground.setScale(0.9)
         Ground.position = CGPoint(x: self.frame.midX, y: self.frame.minY + Ground.frame.height/2)
         
         Ground.physicsBody = SKPhysicsBody(rectangleOf: Ground.size)
@@ -72,12 +72,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         Ground.zPosition = 3
         self.addChild(Ground)
         
+        let ghostTexture = SKTexture(imageNamed: "Ghost")
         
-        Ghost = SKSpriteNode(imageNamed: "Ghost")
+        Ghost = SKSpriteNode(texture: ghostTexture)
         Ghost.size = CGSize(width: 100, height: 100)
         Ghost.position = CGPoint(x: self.frame.midX - 100, y: self.frame.midY)
         
-        Ghost.physicsBody = SKPhysicsBody(circleOfRadius: 50)
+       // Ghost.physicsBody = SKPhysicsBody(circleOfRadius: 50)
+        Ghost.physicsBody = SKPhysicsBody(texture: ghostTexture, size: Ghost.size)
         Ghost.physicsBody?.categoryBitMask = PhysicsCatagory.Ghost
         Ghost.physicsBody?.collisionBitMask = PhysicsCatagory.Ground | PhysicsCatagory.Wall
         Ghost.physicsBody?.contactTestBitMask =  PhysicsCatagory.Ground | PhysicsCatagory.Wall | PhysicsCatagory.Score
@@ -213,18 +215,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         scoreNode.physicsBody?.contactTestBitMask = PhysicsCatagory.Ghost
         scoreNode.color = SKColor.cyan
         
-        wallPair = SKNode()
+        
+        
+        wallPair = SKSpriteNode()
         wallPair.name = "wallPair"
-        let topWall = SKSpriteNode(imageNamed: "Wall")
-        let btmWall = SKSpriteNode(imageNamed: "Wall")
+        let topWallTexture = SKTexture(imageNamed: "killer_flower")
+        let btmWallTexture = SKTexture(imageNamed: "killer_flower")
+
+        
+        let topWall = SKSpriteNode(texture: topWallTexture)
+        
+        let btmWall = SKSpriteNode(texture: btmWallTexture)
 
         topWall.position = CGPoint(x: self.frame.width, y: self.frame.midY + 550)
         btmWall.position = CGPoint(x: self.frame.width, y: self.frame.midY - 550)
 
-        topWall.setScale(0.7)
-        btmWall.setScale(0.7)
+        //topWall.setScale(0.8)
+        //btmWall.setScale(0.8)
         
-        topWall.physicsBody = SKPhysicsBody(rectangleOf: topWall.size)
+        topWall.physicsBody = SKPhysicsBody(texture: topWall.texture!, size: topWall.texture!.size())
         topWall.physicsBody?.categoryBitMask = PhysicsCatagory.Wall
         topWall.physicsBody?.collisionBitMask = PhysicsCatagory.Ghost
         topWall.physicsBody?.contactTestBitMask = PhysicsCatagory.Ghost
@@ -232,20 +241,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         topWall.physicsBody?.affectedByGravity = false
         
         
-        btmWall.physicsBody = SKPhysicsBody(rectangleOf: btmWall.size)
+        btmWall.physicsBody = SKPhysicsBody(texture: btmWall.texture!, size: topWall.texture!.size())
         btmWall.physicsBody?.categoryBitMask = PhysicsCatagory.Wall
         btmWall.physicsBody?.collisionBitMask = PhysicsCatagory.Ghost
         btmWall.physicsBody?.contactTestBitMask = PhysicsCatagory.Ghost
         btmWall.physicsBody?.isDynamic = false
         btmWall.physicsBody?.affectedByGravity = false
         
-       topWall.zRotation  = CGFloat(M_PI)
+       btmWall.zRotation  = CGFloat(M_PI)
     
         wallPair.addChild(topWall)
         wallPair.addChild(btmWall)
         wallPair.zPosition = 1
         
-        var randomPosition = CGFloat.random(min: -250, max: 250)
+        var randomPosition = CGFloat.random(min: -300, max: 300)
         wallPair.position.y = wallPair.position.y + randomPosition
         wallPair.addChild(scoreNode)
         wallPair.run(moveAndRemove)
@@ -270,7 +279,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             
             let distance = CGFloat(self.frame.width*2) //self.frame.width + wallPair.frame.width
 
-            let movePipes = SKAction.moveBy(x: -distance - 200, y: 0, duration: TimeInterval(0.006 * distance))
+            let movePipes = SKAction.moveBy(x: -distance - 2.00, y: 0, duration: TimeInterval(0.006 * distance))
             let removePipes = SKAction.removeFromParent() //remove the pipes after they moved off the screen
             
             moveAndRemove = SKAction.sequence([movePipes, removePipes])
